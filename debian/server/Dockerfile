@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM confluentinc/cp-rpm-kafka
+FROM confluentinc/cp-base
 
 ARG COMMIT_ID=unknown
 LABEL io.confluent.docker.git.id=$COMMIT_ID
@@ -23,19 +23,31 @@ LABEL io.confluent.docker.build.number=$BUILD_NUMBER
 MAINTAINER partner-support@confluent.io
 LABEL io.confluent.docker=true
 
+# allow arg override of required env params
+ARG KAFKA_ZOOKEEPER_CONNECT
+ENV KAFKA_ZOOKEEPER_CONNECT=${KAFKA_ZOOKEEPER_CONNECT}
+ARG KAFKA_ADVERTISED_LISTENERS
+ENV KAFKA_ADVERTISED_LISTENERS=${KAFKA_ADVERTISED_LISTENERS}
+
 ENV COMPONENT=kafka
 
 # primary
 EXPOSE 9092
 
-RUN echo "===> installing confluent-rebalancer ..." \
-    && yum -q -y update \
-    && yum install -y confluent-rebalancer-5.3.0-0.1.SNAPSHOT\
+RUN echo "===> installing ${COMPONENT}..." \
+    && apt-get update && apt-get install -y confluent-server-2.12=5.3.0~SNAPSHOT-1 \
+    && echo "===> installing confluent-rebalancer ..." \
+    && apt-get update && apt-get install -y \
+              confluent-rebalancer=5.3.0~SNAPSHOT-1 \
+    \
     && echo "===> clean up ..."  \
-    && rm -rf /tmp/* \
+    && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \
+    \
     && echo "===> Setting up ${COMPONENT} dirs..." \
-   	&& mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets\
-   	&& chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets
+    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets\
+    && chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets \
+    && chown -R root:root /var/log/kafka /var/log/confluent /var/lib/kafka /var/lib/zookeeper
+
 
 VOLUME ["/var/lib/${COMPONENT}/data", "/etc/${COMPONENT}/secrets"]
 

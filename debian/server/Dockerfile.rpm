@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM confluentinc/cp-rpm-kafka
+FROM confluentinc/cp-rpm-base
 
 ARG COMMIT_ID=unknown
 LABEL io.confluent.docker.git.id=$COMMIT_ID
@@ -28,14 +28,16 @@ ENV COMPONENT=kafka
 # primary
 EXPOSE 9092
 
-RUN echo "===> installing confluent-rebalancer ..." \
+RUN echo "===> installing ${COMPONENT}..." \
     && yum -q -y update \
+    && yum install -y confluent-server-2.12-5.3.0-0.1.SNAPSHOT \
     && yum install -y confluent-rebalancer-5.3.0-0.1.SNAPSHOT\
     && echo "===> clean up ..."  \
     && rm -rf /tmp/* \
-    && echo "===> Setting up ${COMPONENT} dirs..." \
-   	&& mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets\
-   	&& chmod -R ag+w /etc/${COMPONENT} /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets
+    \
+    && echo "===> Setting up ${COMPONENT} dirs" \
+    && mkdir -p /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets \
+    && chmod -R ag+w /etc/kafka /var/lib/${COMPONENT}/data /etc/${COMPONENT}/secrets
 
 VOLUME ["/var/lib/${COMPONENT}/data", "/etc/${COMPONENT}/secrets"]
 

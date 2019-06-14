@@ -35,7 +35,7 @@ ENV COMPONENT=kafka
 EXPOSE 9092
 
 RUN echo "===> installing ${COMPONENT}..." \
-    && apt-get update && apt-get install -y confluent-kafka-${SCALA_VERSION}=${KAFKA_VERSION}${CONFLUENT_PLATFORM_LABEL}-${CONFLUENT_DEB_VERSION} \
+    && apt-get update && apt-get install -y confluent-kafka-2.12=5.3.0~SNAPSHOT-1 \
     \
     && echo "===> clean up ..."  \
     && apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* \

@@ -24,6 +24,7 @@ ARG CONFLUENT_PACKAGES_REPO=$CONFLUENT_PACKAGES_REPO
 ARG ALLOW_UNSIGNED=false
 #Set an env var so that it's available in derived images
 ENV ALLOW_UNSIGNED=${ALLOW_UNSIGNED}
+ENV ALLOW_UNSIGNED=true
 
 MAINTAINER partner-support@confluent.io
 LABEL io.confluent.docker=true

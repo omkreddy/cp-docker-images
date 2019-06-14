@@ -10,14 +10,14 @@ CONFLUENT_PATCH_VERSION ?= 0
 
 CONFLUENT_VERSION ?= ${CONFLUENT_MAJOR_VERSION}.${CONFLUENT_MINOR_VERSION}.${CONFLUENT_PATCH_VERSION}
 
-KAFKA_VERSION ?= 2.3.0
+KAFKA_VERSION ?= 5.3.0
 
-COMPONENTS := base zookeeper kafka kafka-rest schema-registry kafka-connect-base kafka-connect enterprise-control-center kafkacat enterprise-replicator enterprise-replicator-executable enterprise-kafka kafka-mqtt
+COMPONENTS := base zookeeper kafka enterprise-kafka server
 COMMIT_ID := $(shell git rev-parse --short HEAD)
 MYSQL_DRIVER_VERSION := 5.1.39
 
 # Set this variable externally to point at a different repo, such as when building SNAPSHOT images
-CONFLUENT_PACKAGES_REPO ?= https://packages.confluent.io
+CONFLUENT_PACKAGES_REPO ?= https://s3-us-west-2.amazonaws.com/jenkins-confluent-packages/5.3.x/60
 
 # Set to false for public releases
 ALLOW_UNSIGNED ?= false
@@ -122,6 +122,9 @@ test-zookeeper: venv clean-containers build-debian build-test-images
 
 test-kafka: venv clean-containers build-debian build-test-images
 	IMAGE_DIR=$(pwd) venv/bin/py.test tests/test_kafka.py -v
+
+test-confluent-server: venv clean-containers build-debian build-test-images
+	IMAGE_DIR=$(pwd) venv/bin/py.test tests/test_confluent_server.py -v
 
 test-schema-registry: venv clean-containers build-debian build-test-images
 	IMAGE_DIR=$(pwd) venv/bin/py.test tests/test_schema_registry.py -v
